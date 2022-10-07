@@ -1,7 +1,7 @@
 const path = require("path");
 const basePath = process.cwd();
 const fs = require("fs");
-const yesno = require('yesno');
+const yesno = require("yesno");
 
 const {
   fetchNoRetry,
@@ -23,7 +23,7 @@ let {
   BASE_URI,
   PREREVEAL_TOKEN_URI,
   PRESALE_MINT_START_DATE,
-  PRESALE_WHITELISTED_ADDRESSES
+  PRESALE_WHITELISTED_ADDRESSES,
 } = require(`${basePath}/src/config.js`);
 
 const deployContract = async () => {
@@ -31,41 +31,52 @@ const deployContract = async () => {
     question: `Is all REQUIRED contract information correct in config.js? (y/n):`,
     default: null,
   });
-  
-  if(!ok) {
+
+  if (!ok) {
     console.log("Exiting...");
     process.exit(0);
   }
-
-  if(GENERIC) {
+  if (GENERIC) {
     try {
-      let jsonFile = fs.readFileSync(`${basePath}/build/ipfsMetasGeneric/_ipfsMetasResponse.json`);
+      let jsonFile = fs.readFileSync(
+        `${basePath}/build/ipfsMetasGeneric/_ipfsMetasResponse.json`
+      );
       let metaData = JSON.parse(jsonFile);
-      if(metaData.response === "OK") {
-        if(!PREREVEAL_TOKEN_URI) {
+      if (metaData.response === "OK") {
+        if (!PREREVEAL_TOKEN_URI) {
           PREREVEAL_TOKEN_URI = metaData.metadata_uri;
         }
       } else {
-        console.log('There is an issue with the metadata upload. Please check the /build/_ipfsMetasGeneric/_ipfsMetasResponse.json file for more information. Running "npm run upload_metadata" may fix this issue.');
+        console.log(
+          'There is an issue with the metadata upload. Please check the /build/_ipfsMetasGeneric/_ipfsMetasResponse.json file for more information. Running "npm run upload_metadata" may fix this issue.'
+        );
       }
     } catch (err) {
-      console.log(`/build/_ipfsMetasGeneric/_ipfsMetasResponse.json file not found. Run "npm run upload_metadata" first.`);
+      console.log(
+        `/build/_ipfsMetasGeneric/_ipfsMetasResponse.json file not found. Run "npm run upload_metadata" first.`
+      );
       console.log(`Catch: ${err}`);
       process.exit(0);
     }
   } else {
     try {
-      let jsonFile = fs.readFileSync(`${basePath}/build/ipfsMetas/_ipfsMetasResponse.json`);
+      let jsonFile = fs.readFileSync(
+        `${basePath}/build/ipfsMetas/_ipfsMetasResponse.json`
+      );
       let metaData = JSON.parse(jsonFile);
-      if(metaData.response === "OK") {
-        if(!BASE_URI) {
+      if (metaData.response === "OK") {
+        if (!BASE_URI) {
           BASE_URI = metaData.metadata_directory_ipfs_uri;
         }
       } else {
-        console.log('There is an issue with the metadata upload. Please check the /build/_ipfsMetas/_ipfsMetasResponse.json file for more information. Running "npm run upload_metadata" may fix this issue.');
+        console.log(
+          'There is an issue with the metadata upload. Please check the /build/_ipfsMetas/_ipfsMetasResponse.json file for more information. Running "npm run upload_metadata" may fix this issue.'
+        );
       }
     } catch (err) {
-      console.log(`/build/_ipfsMetasGeneric/_ipfsMetasResponse.json file not found. Run "npm run upload_metadata" first.`);
+      console.log(
+        `/build/_ipfsMetasGeneric/_ipfsMetasResponse.json file not found. Run "npm run upload_metadata" first.`
+      );
       process.exit(0);
     }
   }
@@ -92,8 +103,9 @@ const deployContract = async () => {
       presale_mint_start_date: PRESALE_MINT_START_DATE,
       base_uri: BASE_URI,
       prereveal_token_uri: PREREVEAL_TOKEN_URI,
-      presale_whitelisted_addresses: PRESALE_WHITELISTED_ADDRESSES
+      presale_whitelisted_addresses: PRESALE_WHITELISTED_ADDRESSES,
     };
+    console.log(contract);
     const options = {
       method: "POST",
       headers: {
@@ -102,13 +114,18 @@ const deployContract = async () => {
       body: JSON.stringify(contract),
     };
     const response = await fetchNoRetry(url, options);
-    fs.writeFileSync(`${basePath}/build/contract/_deployContractResponse.json`, JSON.stringify(response, null, 2));
-    if(response.response === "OK") {
+    fs.writeFileSync(
+      `${basePath}/build/contract/_deployContractResponse.json`,
+      JSON.stringify(response, null, 2)
+    );
+    if (response.response === "OK") {
       console.log(`Contract deployment started.`);
     } else {
       console.log(`Contract deployment failed`);
     }
-    console.log(`Check /build/contract/_deployContractResponse.json for more information. Run "npm run get_contract" to get the contract details.`);
+    console.log(
+      `Check /build/contract/_deployContractResponse.json for more information. Run "npm run get_contract" to get the contract details.`
+    );
   } catch (error) {
     console.log(`CATCH: Contract deployment failed`, `ERROR: ${error}`);
   }
